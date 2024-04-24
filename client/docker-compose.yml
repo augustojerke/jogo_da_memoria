@@ -1,0 +1,12 @@
+version: "2.26.0"
+
+services:
+
+  db:
+    image: postgres:16.2-alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: jogo_da_memoria_db
+    ports:
+      - "5432:5432"
