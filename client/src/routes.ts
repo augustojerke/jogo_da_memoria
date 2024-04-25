@@ -3,6 +3,7 @@ import { RankingController } from "./Controllers/RankingController";
 
 const router = Router();
 
-router.get('/teste', new RankingController().teste)
+router.post('/ranking', new RankingController().IncluirRanking)
+router.get('/ranking', new RankingController().ListarRanking)
 
 export {router};
