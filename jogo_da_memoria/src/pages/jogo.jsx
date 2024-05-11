@@ -4,6 +4,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from "react";
 import { AntDesign } from '@expo/vector-icons';
 import { FlatList } from "react-native-web";
+import TextoInicial from "../components/textoInicial";
+import Cronometro from "../components/cronometro";
+import Carta from "../components/carta";
 
 export default function Jogo(){
 
@@ -11,48 +14,57 @@ export default function Jogo(){
     const [midViewVisibility, setMidViewVisibility] = useState(true);
     const [midGameViewVisibility, setMidGameViewVisibility] = useState(false);
     const [botViewVisibility, setBotViewVisibility] = useState(true);
+    const [botGameViewVisibility, setBotGameViewVisibility] = useState(false);
+    const [iniciarCronometro, setIniciarCronometro] = useState(false);
+    const [numeroDeElementos, setNumeroDeElementos] = useState([]);
 
     useEffect(() => {
         async function getDif(){
-            const dif = await AsyncStorage.getItem('dificuldade');
-            if(dif != null){
-                setDif(dif);
-            }
+            const _dif = await AsyncStorage.getItem('dificuldade');
+            if(_dif != null){                
+                setDif(_dif);
+            }            
         }
         getDif();        
     },[])
+
+    function retornarElementosPorDificuldade(){
+        switch(dif){
+            case "Fácil": return 16;
+            case "Médio": return 20;
+            case "Difícil": return 24;
+            default: return 16;
+        }
+    }
 
     function startGame(){
         setMidViewVisibility(false);
         setBotViewVisibility(false);
         setMidGameViewVisibility(true);
+        setBotGameViewVisibility(true);
+        setIniciarCronometro(true);
+        const num = retornarElementosPorDificuldade();
+        setNumeroDeElementos(Array.from({ length: num }, (_, index) => index));
     }
 
     return(
         <SafeAreaView style={{flex: 1, backgroundColor: "black"}}>
         <View className="flex-1 bg-green-900">
-            <View className="flex-none flex-row h-14 bg-green-900 p-2 justify-evenly items-center">
+            <View className="flex-none flex-row h-14 bg-green-900 p-2 justify-evenly items-center border-b-2">
                 <Text className="text-white font-bold text-xl">Dificuldade: {dif}</Text>
                 <Text className="text-white font-bold text-xl">Acertos: 0/0</Text>
             </View>
-            <View className="flex-1 justify-center bg-green-800">
-                {midViewVisibility &&
-                    <View className="flex items-center">
-                        <Text className="text-slate-200 font-bold text-xl">Jogo da Memória</Text>
-                        <Text className="text-slate-200 font-bold text-xl">Encontre todos os pares de jogadores</Text>
-                        <Text className="text-slate-200 font-bold text-xl">Boa Sorte!</Text> 
-                    </View>
-                }
+            <View className="flex-1 justify-center bg-green-800 p-5">
+                {midViewVisibility  &&  <TextoInicial/>}
                 {midGameViewVisibility &&
-                    <View className="flex flex-wrap flex-row gap-4">
-                        <View className="flex-1 h-16 bg-slate-500"></View>
-                        <View className="flex-1 h-16 bg-slate-500"></View>
-                        <View className="flex-1 h-16 bg-slate-500"></View>
-                        <View className="flex-1 h-16 bg-slate-500"></View>                        
+                    <View className="flex-row flex-wrap gap-4">
+                        {numeroDeElementos.map((item, i) => (
+                            <Carta key={i} index={i}/>
+                        ))}
                     </View>
                 }                        
             </View>
-            <View className="flex-none h-14 bg-green-900 justify-center items-center">
+            <View className="flex-none h-14 bg-green-900 justify-center items-center border-t-pink-200">
                 {botViewVisibility &&
                     <TouchableOpacity
                      onPress={() => startGame()}  
@@ -62,6 +74,9 @@ export default function Jogo(){
                            Iniciar Jogo
                        </Text>
                     </TouchableOpacity> 
+                }
+                {botGameViewVisibility &&
+                    <Cronometro iniciar={iniciarCronometro}/>
                 }                      
             </View>
         <StatusBar style="light"/>
