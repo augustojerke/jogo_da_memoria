@@ -1,4 +1,4 @@
-import { Text, StatusBar, View, TouchableOpacity } from "react-native"
+import { Text, StatusBar, View, TouchableOpacity, Image } from "react-native"
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from "react";
@@ -6,7 +6,7 @@ import { AntDesign } from '@expo/vector-icons';
 import { FlatList } from "react-native-web";
 import TextoInicial from "../components/textoInicial";
 import Cronometro from "../components/cronometro";
-import Carta from "../components/carta";
+import { Ionicons } from '@expo/vector-icons';
 
 export default function Jogo(){
 
@@ -54,17 +54,22 @@ export default function Jogo(){
                 <Text className="text-white font-bold text-xl">Dificuldade: {dif}</Text>
                 <Text className="text-white font-bold text-xl">Acertos: 0/0</Text>
             </View>
-            <View className="flex-1 justify-center bg-green-800 p-5">
+            <View className="flex-1 justify-center bg-green-800 p-5 border-b-2">
                 {midViewVisibility  &&  <TextoInicial/>}
                 {midGameViewVisibility &&
-                    <View className="flex-row flex-wrap gap-4">
+                    <View className="justify-center items-center flex-row flex-wrap gap-4">
                         {numeroDeElementos.map((item, i) => (
-                            <Carta key={i} index={i}/>
+                            <View 
+                            key={i} 
+                            className="flex justify-center items-center bg-slate-600 h-24 w-20 border-solid border-2 border-black rounded-xl shadow-xl shadow-green-500 overflow-hidden">
+                               {/* <Ionicons name="person" size={55} color="grey" /> */}
+                               <Image source={require("../../assets/messi.webp")} className="w-full h-full rounded"/>
+                           </View>
                         ))}
                     </View>
                 }                        
             </View>
-            <View className="flex-none h-14 bg-green-900 justify-center items-center border-t-pink-200">
+            <View className="flex-none h-14 bg-green-900 justify-center items-center">
                 {botViewVisibility &&
                     <TouchableOpacity
                      onPress={() => startGame()}  
