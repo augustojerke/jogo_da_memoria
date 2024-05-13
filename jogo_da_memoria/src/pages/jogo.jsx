@@ -3,7 +3,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from "react";
 import { AntDesign } from '@expo/vector-icons';
-import { FlatList } from "react-native-web";
 import TextoInicial from "../components/textoInicial";
 import Cronometro from "../components/cronometro";
 import { Ionicons } from '@expo/vector-icons';
@@ -17,6 +16,7 @@ export default function Jogo(){
     const [botGameViewVisibility, setBotGameViewVisibility] = useState(false);
     const [iniciarCronometro, setIniciarCronometro] = useState(false);
     const [numeroDeElementos, setNumeroDeElementos] = useState([]);
+    const [cartasViradas, setCartasViradas] = useState([]);
 
     useEffect(() => {
         async function getDif(){
@@ -37,6 +37,20 @@ export default function Jogo(){
         }
     }
 
+    function inicializarCartasViradas(num){
+        const array = []
+        for(let i = 0; i<num; i++){
+            array.push(false);            
+        }
+        setCartasViradas(array);
+    }
+
+    function virarCarta(carta){
+        const array = [...cartasViradas]
+        array[carta] = array[carta] ? false : true
+        setCartasViradas(array)
+    }
+
     function startGame(){
         setMidViewVisibility(false);
         setBotViewVisibility(false);
@@ -45,6 +59,7 @@ export default function Jogo(){
         setIniciarCronometro(true);
         const num = retornarElementosPorDificuldade();
         setNumeroDeElementos(Array.from({ length: num }, (_, index) => index));
+        inicializarCartasViradas(num);
     }
 
     return(
@@ -59,12 +74,15 @@ export default function Jogo(){
                 {midGameViewVisibility &&
                     <View className="justify-center items-center flex-row flex-wrap gap-4">
                         {numeroDeElementos.map((item, i) => (
-                            <View 
-                            key={i} 
-                            className="flex justify-center items-center bg-slate-600 h-24 w-20 border-solid border-2 border-black rounded-xl shadow-xl shadow-green-500 overflow-hidden">
-                               {/* <Ionicons name="person" size={55} color="grey" /> */}
-                               <Image source={require("../../assets/messi.webp")} className="w-full h-full rounded"/>
-                           </View>
+                            <TouchableOpacity key={i} onPress={() => virarCarta(i)}>                             
+                                <View                                                              
+                                 className="flex justify-center items-center bg-slate-600 h-24 w-20 border-solid border-2 border-black rounded-xl shadow-xl shadow-green-500 overflow-hidden">
+                                    {
+                                        cartasViradas[i] ? <Image source={require("../../assets/messi.webp")} className="w-full h-full rounded"/> :
+                                        <Ionicons name="person" size={55} color="grey" />
+                                    }                                                              
+                                </View>
+                           </TouchableOpacity>
                         ))}
                     </View>
                 }                        
