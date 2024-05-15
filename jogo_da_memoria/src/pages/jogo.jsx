@@ -6,6 +6,7 @@ import { AntDesign } from '@expo/vector-icons';
 import TextoInicial from "../components/textoInicial";
 import Cronometro from "../components/cronometro";
 import { Ionicons } from '@expo/vector-icons';
+import { aleatorizarJogadores } from "../functions/functions.jsx"
 
 export default function Jogo(){
 
@@ -15,8 +16,8 @@ export default function Jogo(){
     const [botViewVisibility, setBotViewVisibility] = useState(true);
     const [botGameViewVisibility, setBotGameViewVisibility] = useState(false);
     const [iniciarCronometro, setIniciarCronometro] = useState(false);
-    const [numeroDeElementos, setNumeroDeElementos] = useState([]);
     const [cartasViradas, setCartasViradas] = useState([]);
+    const [jogadores, setJogadores] = useState([]);
 
     useEffect(() => {
         async function getDif(){
@@ -58,8 +59,10 @@ export default function Jogo(){
         setBotGameViewVisibility(true);
         setIniciarCronometro(true);
         const num = retornarElementosPorDificuldade();
-        setNumeroDeElementos(Array.from({ length: num }, (_, index) => index));
         inicializarCartasViradas(num);
+        const arrayJogadoresAleatorios = aleatorizarJogadores(num/2);
+        console.log(arrayJogadoresAleatorios[0])
+        setJogadores(arrayJogadoresAleatorios);
     }
 
     return(
@@ -73,13 +76,12 @@ export default function Jogo(){
                 {midViewVisibility  &&  <TextoInicial/>}
                 {midGameViewVisibility &&
                     <View className="justify-center items-center flex-row flex-wrap gap-4">
-                        {numeroDeElementos.map((item, i) => (
+                        {jogadores.map((item, i) => (
                             <TouchableOpacity key={i} onPress={() => virarCarta(i)}>                             
                                 <View                                                              
                                  className="flex justify-center items-center bg-slate-600 h-24 w-20 border-solid border-2 border-black rounded-xl shadow-xl shadow-green-500 overflow-hidden">
-                                    {
-                                        cartasViradas[i] ? <Image source={require("../../assets/messi.webp")} className="w-full h-full rounded"/> :
-                                        <Ionicons name="person" size={55} color="grey" />
+                                    {                                        
+                                        cartasViradas[i] ? (item) : (<Ionicons name="person" size={55} color="grey" />)                                        
                                     }                                                              
                                 </View>
                            </TouchableOpacity>
