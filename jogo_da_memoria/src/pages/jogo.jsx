@@ -18,6 +18,7 @@ export default function Jogo(){
     const [iniciarCronometro, setIniciarCronometro] = useState(false);
     const [cartasViradas, setCartasViradas] = useState([]);
     const [jogadores, setJogadores] = useState([]);
+    const [primeiraCartaVirada, setPrimeiraCartaVirada] = useState("");
 
     useEffect(() => {
         async function getDif(){
@@ -46,10 +47,30 @@ export default function Jogo(){
         setCartasViradas(array);
     }
 
-    function virarCarta(carta){
-        const array = [...cartasViradas]
-        array[carta] = array[carta] ? false : true
-        setCartasViradas(array)
+    function virarCarta(carta, idJogador){
+        if(primeiraCartaVirada === "") {
+            const array = [...cartasViradas]
+            array[carta] = array[carta] ? false : true
+            setCartasViradas(array);
+            setPrimeiraCartaVirada(idJogador);
+        }
+        else {
+            if(idJogador === primeiraCartaVirada) {
+                console.log("achou par");                
+                const array = [...cartasViradas]
+                array[carta] = array[carta] ? false : true
+                setCartasViradas(array);
+            }
+            else {
+                console.log("nao é par");
+                const array = [...cartasViradas]
+                array[carta] = array[carta] ? false : true
+                setTimeout(() => {
+                    setPrimeiraCartaVirada("");
+                    setCartasViradas([])
+                }, 2000);                
+            }
+        }        
     }
 
     function startGame(){
@@ -60,8 +81,7 @@ export default function Jogo(){
         setIniciarCronometro(true);
         const num = retornarElementosPorDificuldade();
         inicializarCartasViradas(num);
-        const arrayJogadoresAleatorios = aleatorizarJogadores(num/2);
-        console.log(arrayJogadoresAleatorios[0])
+        const arrayJogadoresAleatorios = aleatorizarJogadores(num);
         setJogadores(arrayJogadoresAleatorios);
     }
 
@@ -77,11 +97,11 @@ export default function Jogo(){
                 {midGameViewVisibility &&
                     <View className="justify-center items-center flex-row flex-wrap gap-4">
                         {jogadores.map((item, i) => (
-                            <TouchableOpacity key={i} onPress={() => virarCarta(i)}>                             
+                            <TouchableOpacity key={i} onPress={() => virarCarta(i, item.id)}>                             
                                 <View                                                              
                                  className="flex justify-center items-center bg-slate-600 h-24 w-20 border-solid border-2 border-black rounded-xl shadow-xl shadow-green-500 overflow-hidden">
                                     {                                        
-                                        cartasViradas[i] ? (item) : (<Ionicons name="person" size={55} color="grey" />)                                        
+                                        cartasViradas[i] ? (item.foto) : (<Ionicons name="person" size={55} color="grey" />)                                        
                                     }                                                              
                                 </View>
                            </TouchableOpacity>
