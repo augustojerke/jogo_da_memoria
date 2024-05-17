@@ -18,7 +18,9 @@ export default function Jogo(){
     const [iniciarCronometro, setIniciarCronometro] = useState(false);
     const [cartasViradas, setCartasViradas] = useState([]);
     const [jogadores, setJogadores] = useState([]);
-    const [primeiraCartaVirada, setPrimeiraCartaVirada] = useState("");
+    const [primeiraCartaVirada, setPrimeiraCartaVirada] = useState({ nome: "", indexCarta: "" });
+    const [cartasConcluidas, setCartasConluidas] = useState([]);
+    const [acertosTotais, setAcertosTotais] = useState(calcularTotalAcertos());
 
     useEffect(() => {
         async function getDif(){
@@ -29,6 +31,26 @@ export default function Jogo(){
         }
         getDif();        
     },[])
+
+    function calcularTotalAcertos(){
+        return retornarElementosPorDificuldade()/2
+    }
+
+    function adicionarAcerto() {
+        
+    }
+
+    function isCartaVirada(carta){        
+        if(primeiraCartaVirada.indexCarta === carta) {
+            return "border-4 border-sky-400";
+        }
+        else if (cartasConcluidas.includes(carta)){
+            return "border-4 border-emerald-400"
+        }
+        else{
+            return ""
+        }
+    }
 
     function retornarElementosPorDificuldade(){
         switch(dif){
@@ -47,30 +69,62 @@ export default function Jogo(){
         setCartasViradas(array);
     }
 
-    function virarCarta(carta, idJogador){
-        if(primeiraCartaVirada === "") {
-            const array = [...cartasViradas]
-            array[carta] = array[carta] ? false : true
-            setCartasViradas(array);
-            setPrimeiraCartaVirada(idJogador);
-        }
-        else {
-            if(idJogador === primeiraCartaVirada) {
-                console.log("achou par");                
-                const array = [...cartasViradas]
-                array[carta] = array[carta] ? false : true
-                setCartasViradas(array);
+    function concluirPar(carta) {
+        mudarEstadoDaCarta(carta);            
+        setCartasConluidas((prev) => [...prev, carta]);
+        setCartasConluidas((prev) => [...prev, primeiraCartaVirada.indexCarta]);
+    }
+
+    function virarCartasAoErrar(numeroDeCartas) {
+        let novoArrayCartasViradas = [];
+        for(let i = 0; i<numeroDeCartas; i++){
+            if(cartasConcluidas.includes(i)) {
+                novoArrayCartasViradas.push(true);
             }
             else {
-                console.log("nao é par");
-                const array = [...cartasViradas]
-                array[carta] = array[carta] ? false : true
-                setTimeout(() => {
-                    setPrimeiraCartaVirada("");
-                    setCartasViradas([])
-                }, 2000);                
+                novoArrayCartasViradas.push(false);
             }
+        }       
+        setCartasViradas(novoArrayCartasViradas);
+    }
+
+    function virarCarta(carta, idJogador){
+
+        if(cartasConcluidas.includes(carta)) {
+            return;
+        }
+
+        if(primeiraCartaVirada.nome === "") {
+            mudarEstadoDaCarta(carta);
+            setPrimeiraCartaVirada({
+                nome: idJogador,
+                indexCarta: carta
+            });
+        }
+        else {
+            if(idJogador === primeiraCartaVirada.nome) {
+                concluirPar(carta);
+                adicionarAcerto();
+            }
+            else {
+                mudarEstadoDaCarta(carta);
+                const numeroDeCartas = retornarElementosPorDificuldade();                
+                setTimeout(() => {  
+                    virarCartasAoErrar(numeroDeCartas)
+                }, 1000);                
+            }
+
+            setPrimeiraCartaVirada({ 
+                nome: "",
+                indexCarta: ""
+            });
         }        
+    }
+
+    function mudarEstadoDaCarta(carta){
+        const array = [...cartasViradas]
+        array[carta] = array[carta] ? false : true
+        setCartasViradas(array);
     }
 
     function startGame(){
@@ -90,7 +144,7 @@ export default function Jogo(){
         <View className="flex-1 bg-green-900">
             <View className="flex-none flex-row h-14 bg-green-900 p-2 justify-evenly items-center border-b-2">
                 <Text className="text-white font-bold text-xl">Dificuldade: {dif}</Text>
-                <Text className="text-white font-bold text-xl">Acertos: 0/0</Text>
+                <Text className="text-white font-bold text-xl">Acertos: 0/{acertosTotais}</Text>
             </View>
             <View className="flex-1 justify-center bg-green-800 p-5 border-b-2">
                 {midViewVisibility  &&  <TextoInicial/>}
@@ -99,7 +153,7 @@ export default function Jogo(){
                         {jogadores.map((item, i) => (
                             <TouchableOpacity key={i} onPress={() => virarCarta(i, item.id)}>                             
                                 <View                                                              
-                                 className="flex justify-center items-center bg-slate-600 h-24 w-20 border-solid border-2 border-black rounded-xl shadow-xl shadow-green-500 overflow-hidden">
+                                className={`flex justify-center items-center bg-slate-600 h-24 w-20 ${isCartaVirada(i)} rounded-xl shadow-xl shadow-green-500 overflow-hidden`}>
                                     {                                        
                                         cartasViradas[i] ? (item.foto) : (<Ionicons name="person" size={55} color="grey" />)                                        
                                     }                                                              
