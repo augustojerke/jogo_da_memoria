@@ -21,6 +21,8 @@ export default function Jogo(){
     const [primeiraCartaVirada, setPrimeiraCartaVirada] = useState({ nome: "", indexCarta: "" });
     const [cartasConcluidas, setCartasConluidas] = useState([]);
     const [acertosTotais, setAcertosTotais] = useState(calcularTotalAcertos());
+    const [acertosReais, setAcertosReais] = useState(0);
+    const [segundaCartaVirada, setSegundaCartaVirada] = useState(false);
 
     useEffect(() => {
         async function getDif(){
@@ -37,7 +39,9 @@ export default function Jogo(){
     }
 
     function adicionarAcerto() {
-        
+        setAcertosReais((prev) => {
+            return prev + 1;
+        })
     }
 
     function isCartaVirada(carta){        
@@ -77,7 +81,7 @@ export default function Jogo(){
 
     function virarCartasAoErrar(numeroDeCartas) {
         let novoArrayCartasViradas = [];
-        for(let i = 0; i<numeroDeCartas; i++){
+        for(let i = 0; i<numeroDeCartas; i++) {
             if(cartasConcluidas.includes(i)) {
                 novoArrayCartasViradas.push(true);
             }
@@ -88,7 +92,11 @@ export default function Jogo(){
         setCartasViradas(novoArrayCartasViradas);
     }
 
-    function virarCarta(carta, idJogador){
+    function virarCarta(carta, idJogador) {
+
+        if(primeiraCartaVirada.nome !== "" && segundaCartaVirada) {
+            return
+        }
 
         if(cartasConcluidas.includes(carta)) {
             return;
@@ -102,6 +110,8 @@ export default function Jogo(){
             });
         }
         else {
+            setSegundaCartaVirada(true);
+            
             if(idJogador === primeiraCartaVirada.nome) {
                 concluirPar(carta);
                 adicionarAcerto();
@@ -118,6 +128,8 @@ export default function Jogo(){
                 nome: "",
                 indexCarta: ""
             });
+
+            setSegundaCartaVirada(false);
         }        
     }
 
@@ -144,7 +156,7 @@ export default function Jogo(){
         <View className="flex-1 bg-green-900">
             <View className="flex-none flex-row h-14 bg-green-900 p-2 justify-evenly items-center border-b-2">
                 <Text className="text-white font-bold text-xl">Dificuldade: {dif}</Text>
-                <Text className="text-white font-bold text-xl">Acertos: 0/{acertosTotais}</Text>
+                <Text className="text-white font-bold text-xl">Acertos: {acertosReais}/{acertosTotais}</Text>
             </View>
             <View className="flex-1 justify-center bg-green-800 p-5 border-b-2">
                 {midViewVisibility  &&  <TextoInicial/>}
