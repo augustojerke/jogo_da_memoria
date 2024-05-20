@@ -1,4 +1,4 @@
-import { Text, StatusBar, View, TouchableOpacity, Image } from "react-native"
+import { Text, StatusBar, View, TouchableOpacity, Image, Pressable } from "react-native"
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from "react";
@@ -7,6 +7,7 @@ import TextoInicial from "../components/textoInicial";
 import Cronometro from "../components/cronometro";
 import { Ionicons } from '@expo/vector-icons';
 import { aleatorizarJogadores } from "../functions/functions.jsx"
+import ModalFimJogo from "../components/modalFimJogo.jsx";
 
 export default function Jogo(){
 
@@ -20,9 +21,11 @@ export default function Jogo(){
     const [jogadores, setJogadores] = useState([]);
     const [primeiraCartaVirada, setPrimeiraCartaVirada] = useState({ nome: "", indexCarta: "" });
     const [cartasConcluidas, setCartasConluidas] = useState([]);
-    const [acertosTotais, setAcertosTotais] = useState(calcularTotalAcertos());
+    const [acertosTotais, setAcertosTotais] = useState(0);
     const [acertosReais, setAcertosReais] = useState(0);
     const [segundaCartaVirada, setSegundaCartaVirada] = useState(false);
+    const [timeoutId, setTimeoutId] = useState(null);
+    const [executandoTimeout, setExecutandoTimeout] = useState(false);
 
     useEffect(() => {
         async function getDif(){
@@ -35,7 +38,7 @@ export default function Jogo(){
     },[])
 
     function calcularTotalAcertos(){
-        return retornarElementosPorDificuldade()/2
+        setAcertosTotais(retornarElementosPorDificuldade()/2)
     }
 
     function adicionarAcerto() {
@@ -92,10 +95,15 @@ export default function Jogo(){
         setCartasViradas(novoArrayCartasViradas);
     }
 
-    function virarCarta(carta, idJogador) {
+    async function virarCarta(carta, idJogador) {
+
+        if (executandoTimeout) {
+            return;
+        }
 
         if(primeiraCartaVirada.nome !== "" && segundaCartaVirada) {
-            return
+            console.log("jogo parado")
+            return;
         }
 
         if(cartasConcluidas.includes(carta)) {
@@ -112,16 +120,20 @@ export default function Jogo(){
         else {
             setSegundaCartaVirada(true);
             
-            if(idJogador === primeiraCartaVirada.nome) {
+            if(idJogador === primeiraCartaVirada.nome && carta != primeiraCartaVirada.indexCarta) {
                 concluirPar(carta);
                 adicionarAcerto();
             }
-            else {
+            else { 
                 mudarEstadoDaCarta(carta);
-                const numeroDeCartas = retornarElementosPorDificuldade();                
-                setTimeout(() => {  
-                    virarCartasAoErrar(numeroDeCartas)
-                }, 1000);                
+                const numeroDeCartas = retornarElementosPorDificuldade();
+                setExecutandoTimeout(true);
+
+                const id = setTimeout(() => {
+                    virarCartasAoErrar(numeroDeCartas);
+                    setExecutandoTimeout(false);
+                }, 550);
+                setTimeoutId(id);                                               
             }
 
             setPrimeiraCartaVirada({ 
@@ -149,6 +161,7 @@ export default function Jogo(){
         inicializarCartasViradas(num);
         const arrayJogadoresAleatorios = aleatorizarJogadores(num);
         setJogadores(arrayJogadoresAleatorios);
+        calcularTotalAcertos();
     }
 
     return(
@@ -159,7 +172,7 @@ export default function Jogo(){
                 <Text className="text-white font-bold text-xl">Acertos: {acertosReais}/{acertosTotais}</Text>
             </View>
             <View className="flex-1 justify-center bg-green-800 p-5 border-b-2">
-                {midViewVisibility  &&  <TextoInicial/>}
+                {midViewVisibility  &&  <><TextoInicial/></>}
                 {midGameViewVisibility &&
                     <View className="justify-center items-center flex-row flex-wrap gap-4">
                         {jogadores.map((item, i) => (
