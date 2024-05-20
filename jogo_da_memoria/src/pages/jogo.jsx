@@ -7,7 +7,7 @@ import TextoInicial from "../components/textoInicial";
 import Cronometro from "../components/cronometro";
 import { Ionicons } from '@expo/vector-icons';
 import { aleatorizarJogadores } from "../functions/functions.jsx"
-import ModalFimJogo from "../components/modalFimJogo.jsx";
+import FimDeJogo from "../components/fimDeJogo.jsx";
 
 export default function Jogo(){
 
@@ -16,7 +16,9 @@ export default function Jogo(){
     const [midGameViewVisibility, setMidGameViewVisibility] = useState(false);
     const [botViewVisibility, setBotViewVisibility] = useState(true);
     const [botGameViewVisibility, setBotGameViewVisibility] = useState(false);
+    const [midFinalViewVisibility, setMidFinalViewVisibility] = useState(false);
     const [iniciarCronometro, setIniciarCronometro] = useState(false);
+    const [pausarCronometro, setPausarCronometro] = useState(false);
     const [cartasViradas, setCartasViradas] = useState([]);
     const [jogadores, setJogadores] = useState([]);
     const [primeiraCartaVirada, setPrimeiraCartaVirada] = useState({ nome: "", indexCarta: "" });
@@ -26,6 +28,7 @@ export default function Jogo(){
     const [segundaCartaVirada, setSegundaCartaVirada] = useState(false);
     const [timeoutId, setTimeoutId] = useState(null);
     const [executandoTimeout, setExecutandoTimeout] = useState(false);
+    const [valorRealCronometro, setValorRealCronometro] = useState("");
 
     useEffect(() => {
         async function getDif(){
@@ -45,6 +48,12 @@ export default function Jogo(){
         setAcertosReais((prev) => {
             return prev + 1;
         })
+
+        if(acertosReais + 1 == acertosTotais){
+            setMidGameViewVisibility(false);
+            setMidFinalViewVisibility(true);
+            setPausarCronometro(true);
+        }
     }
 
     function isCartaVirada(carta){        
@@ -186,7 +195,8 @@ export default function Jogo(){
                            </TouchableOpacity>
                         ))}
                     </View>
-                }                        
+                }
+                {midFinalViewVisibility && <FimDeJogo tempo={valorRealCronometro}/>}                        
             </View>
             <View className="flex-none h-14 bg-green-900 justify-center items-center">
                 {botViewVisibility &&
@@ -199,9 +209,7 @@ export default function Jogo(){
                        </Text>
                     </TouchableOpacity> 
                 }
-                {botGameViewVisibility &&
-                    <Cronometro iniciar={iniciarCronometro}/>
-                }                      
+                {botGameViewVisibility && <Cronometro iniciar={iniciarCronometro} setTempo={setValorRealCronometro} pausar={pausarCronometro}/>}                                                         
             </View>
         <StatusBar style="light"/>
         </View>

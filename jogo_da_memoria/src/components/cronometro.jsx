@@ -2,13 +2,16 @@ import { useEffect, useState } from "react"
 import { Text, View } from "react-native";
 import { MaterialIcons } from '@expo/vector-icons';
 
-export default function Cronometro({iniciar}){
+export default function Cronometro({iniciar, setTempo, pausar}){
 
     useEffect(() => {
         if(iniciar){
             iniciarTimer();
         }
-    }, [iniciar])
+        if(pausar){
+            pararTimer()
+        }
+    }, [iniciar, pausar])
 
     const [segundos, setSegundos] = useState(0);
     const [minutos, setMinutos] = useState(0);
@@ -26,6 +29,9 @@ export default function Cronometro({iniciar}){
         if(intervalo){
             clearInterval(intervalo);
         }
+        let min = minutos < 10 ? "0" + minutos : minutos;
+        let seg = segundos < 10 ? "0" + segundos : segundos;
+        setTempo(min + ":" + seg); 
     }
 
     const limpar = () => {
