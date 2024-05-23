@@ -1,4 +1,4 @@
-import { Text, StatusBar, View, TouchableOpacity, Image, Pressable } from "react-native"
+import { Text, StatusBar, View, TouchableOpacity, Image, Pressable, Touchable } from "react-native"
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from "react";
@@ -8,8 +8,9 @@ import Cronometro from "../components/cronometro";
 import { Ionicons } from '@expo/vector-icons';
 import { aleatorizarJogadores } from "../functions/functions.jsx"
 import FimDeJogo from "../components/fimDeJogo.jsx";
+import { FontAwesome } from '@expo/vector-icons';
 
-export default function Jogo(){
+export default function Jogo({navigation}){
 
     const [dif, setDif] = useState(null);
     const [midViewVisibility, setMidViewVisibility] = useState(true);
@@ -17,8 +18,10 @@ export default function Jogo(){
     const [botViewVisibility, setBotViewVisibility] = useState(true);
     const [botGameViewVisibility, setBotGameViewVisibility] = useState(false);
     const [midFinalViewVisibility, setMidFinalViewVisibility] = useState(false);
+    const [viewBotaoPause, setViewBotaoPause] = useState(false);
     const [iniciarCronometro, setIniciarCronometro] = useState(false);
     const [pausarCronometro, setPausarCronometro] = useState(false);
+    const [pausarGame, setPausarGame] = useState(false);
     const [cartasViradas, setCartasViradas] = useState([]);
     const [jogadores, setJogadores] = useState([]);
     const [primeiraCartaVirada, setPrimeiraCartaVirada] = useState({ nome: "", indexCarta: "" });
@@ -40,6 +43,35 @@ export default function Jogo(){
         getDif();        
     },[])
 
+    function terminarJogo(){
+        setMidGameViewVisibility(false);
+        setMidFinalViewVisibility(true);
+        setIniciarCronometro(false);
+        setPausarCronometro(true);
+        setViewBotaoPause(false);        
+    }
+
+    function reiniciarJogo(){
+        setMidGameViewVisibility(true);
+        zerarJogo();
+        setMidFinalViewVisibility(false);
+        startGame();
+    }
+
+    function zerarJogo(){
+        setPrimeiraCartaVirada({
+            nome: "",
+            indexCarta: ""
+        })
+        setSegundaCartaVirada(false);
+        setCartasConluidas([]);
+        setAcertosReais(0);
+        setJogadores([]);
+        setCartasViradas([]);
+        setIniciarCronometro(true);
+        setPausarCronometro(false);
+    }
+
     function calcularTotalAcertos(){
         setAcertosTotais(retornarElementosPorDificuldade()/2)
     }
@@ -50,9 +82,7 @@ export default function Jogo(){
         })
 
         if(acertosReais + 1 == acertosTotais){
-            setMidGameViewVisibility(false);
-            setMidFinalViewVisibility(true);
-            setPausarCronometro(true);
+            terminarJogo();
         }
     }
 
@@ -105,6 +135,10 @@ export default function Jogo(){
     }
 
     async function virarCarta(carta, idJogador) {
+
+        if(pausarGame){
+            return;
+        }
 
         if (executandoTimeout) {
             return;
@@ -160,11 +194,26 @@ export default function Jogo(){
         setCartasViradas(array);
     }
 
+    function continuarJogo(){
+        setPausarGame(false);
+    }
+
+    function pausarJogo(){
+
+        if(pausarGame){
+            continuarJogo();
+        }
+    
+        setPausarCronometro(true);
+        setPausarGame(true);
+    }
+
     function startGame(){
         setMidViewVisibility(false);
         setBotViewVisibility(false);
         setMidGameViewVisibility(true);
         setBotGameViewVisibility(true);
+        setViewBotaoPause(true);
         setIniciarCronometro(true);
         const num = retornarElementosPorDificuldade();
         inicializarCartasViradas(num);
@@ -179,8 +228,15 @@ export default function Jogo(){
             <View className="flex-none flex-row h-14 bg-green-900 p-2 justify-evenly items-center border-b-2">
                 <Text className="text-white font-bold text-xl">Dificuldade: {dif}</Text>
                 <Text className="text-white font-bold text-xl">Acertos: {acertosReais}/{acertosTotais}</Text>
+                {viewBotaoPause && 
+                    <TouchableOpacity
+                        onPress={() => pausarJogo()} 
+                        className="bg-red-700 flex items-center justify-center w-12 h-8 flex-row rounded-xl">
+                        <FontAwesome name="pause" size={20} color="white" />
+                    </TouchableOpacity> 
+                }
             </View>
-            <View className="flex-1 justify-center bg-green-800 p-5 border-b-2">
+            <View className="flex-1 justify-center bg-green-800 p-5 border-b-2 pt-8">
                 {midViewVisibility  &&  <><TextoInicial/></>}
                 {midGameViewVisibility &&
                     <View className="justify-center items-center flex-row flex-wrap gap-4">
@@ -196,7 +252,7 @@ export default function Jogo(){
                         ))}
                     </View>
                 }
-                {midFinalViewVisibility && <FimDeJogo tempo={valorRealCronometro}/>}                        
+                {midFinalViewVisibility && <FimDeJogo navigation={navigation} tempo={valorRealCronometro} reiniciar={reiniciarJogo}/>}                        
             </View>
             <View className="flex-none h-14 bg-green-900 justify-center items-center">
                 {botViewVisibility &&
@@ -209,7 +265,14 @@ export default function Jogo(){
                        </Text>
                     </TouchableOpacity> 
                 }
-                {botGameViewVisibility && <Cronometro iniciar={iniciarCronometro} setTempo={setValorRealCronometro} pausar={pausarCronometro}/>}                                                         
+                {botGameViewVisibility && 
+                    <Cronometro 
+                        iniciar={iniciarCronometro} 
+                        setTempo={setValorRealCronometro} 
+                        pausar={pausarCronometro}
+                        pausarJogo={pausarGame}
+                    />
+                }                                                         
             </View>
         <StatusBar style="light"/>
         </View>

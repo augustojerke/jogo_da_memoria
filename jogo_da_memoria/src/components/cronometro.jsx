@@ -2,14 +2,18 @@ import { useEffect, useState } from "react"
 import { Text, View } from "react-native";
 import { MaterialIcons } from '@expo/vector-icons';
 
-export default function Cronometro({iniciar, setTempo, pausar}){
+export default function Cronometro({iniciar, setTempo, pausar, pausarJogo}){
 
     useEffect(() => {
         if(iniciar){
             iniciarTimer();
         }
+        if(pausar && pausarJogo){
+            pararTimer();
+        }
         if(pausar){
-            pararTimer()
+            pararTimer();
+            limpar();
         }
     }, [iniciar, pausar])
 
