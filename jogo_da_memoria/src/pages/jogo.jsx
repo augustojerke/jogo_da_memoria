@@ -18,7 +18,6 @@ export default function Jogo({navigation}){
     const [botViewVisibility, setBotViewVisibility] = useState(true);
     const [botGameViewVisibility, setBotGameViewVisibility] = useState(false);
     const [midFinalViewVisibility, setMidFinalViewVisibility] = useState(false);
-    const [viewBotaoPause, setViewBotaoPause] = useState(false);
     const [iniciarCronometro, setIniciarCronometro] = useState(false);
     const [pausarCronometro, setPausarCronometro] = useState(false);
     const [pausarGame, setPausarGame] = useState(false);
@@ -194,20 +193,6 @@ export default function Jogo({navigation}){
         setCartasViradas(array);
     }
 
-    function continuarJogo(){
-        setPausarGame(false);
-    }
-
-    function pausarJogo(){
-
-        if(pausarGame){
-            continuarJogo();
-        }
-    
-        setPausarCronometro(true);
-        setPausarGame(true);
-    }
-
     function startGame(){
         setMidViewVisibility(false);
         setBotViewVisibility(false);
@@ -227,14 +212,7 @@ export default function Jogo({navigation}){
         <View className="flex-1 bg-green-900">
             <View className="flex-none flex-row h-14 bg-green-900 p-2 justify-evenly items-center border-b-2">
                 <Text className="text-white font-bold text-xl">Dificuldade: {dif}</Text>
-                <Text className="text-white font-bold text-xl">Acertos: {acertosReais}/{acertosTotais}</Text>
-                {viewBotaoPause && 
-                    <TouchableOpacity
-                        onPress={() => pausarJogo()} 
-                        className="bg-red-700 flex items-center justify-center w-12 h-8 flex-row rounded-xl">
-                        <FontAwesome name="pause" size={20} color="white" />
-                    </TouchableOpacity> 
-                }
+                <Text className="text-white font-bold text-xl">Acertos: {acertosReais}/{acertosTotais}</Text>            
             </View>
             <View className="flex-1 justify-center bg-green-800 p-5 border-b-2 pt-8">
                 {midViewVisibility  &&  <><TextoInicial/></>}
@@ -269,8 +247,6 @@ export default function Jogo({navigation}){
                     <Cronometro 
                         iniciar={iniciarCronometro} 
                         setTempo={setValorRealCronometro} 
-                        pausar={pausarCronometro}
-                        pausarJogo={pausarGame}
                     />
                 }                                                         
             </View>

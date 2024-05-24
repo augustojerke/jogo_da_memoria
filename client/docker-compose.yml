@@ -1,13 +1,16 @@
-version: "3.5"
+version: "3.7"
 
 services:
-
-  db:
-    image: postgres:16.2-alpine
-    restart: always
-    environment:
-      - POSTGRES_PASSWORD=admin
-      - POSTGRES_DB=jogo_da_memoria_db
-      - POSTGRES_HOST_AUTH_METHOD=trust
+  postgres:
+    image: bitnami/postgresql:latest
     ports:
-      - 54954:54954
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=postgre
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=jogo_da_memoria
+    volumes:
+      - jogo_da_memoria_pg_data:/bitnami/postgresql
+
+volumes:
+  jogo_da_memoria_pg_data:
