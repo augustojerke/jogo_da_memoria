@@ -2,9 +2,10 @@ version: "3.7"
 
 services:
   postgres:
+    container_name: postgres
     image: bitnami/postgresql:latest
     ports:
-      - '5432:5432'
+      - '5431:5432'
     environment:
       - POSTGRES_USER=postgre
       - POSTGRES_PASSWORD=admin

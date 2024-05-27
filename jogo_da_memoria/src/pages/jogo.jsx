@@ -46,8 +46,7 @@ export default function Jogo({navigation}){
         setMidGameViewVisibility(false);
         setMidFinalViewVisibility(true);
         setIniciarCronometro(false);
-        setPausarCronometro(true);
-        setViewBotaoPause(false);        
+        setPausarCronometro(true);      
     }
 
     function reiniciarJogo(){
@@ -198,7 +197,6 @@ export default function Jogo({navigation}){
         setBotViewVisibility(false);
         setMidGameViewVisibility(true);
         setBotGameViewVisibility(true);
-        setViewBotaoPause(true);
         setIniciarCronometro(true);
         const num = retornarElementosPorDificuldade();
         inicializarCartasViradas(num);
