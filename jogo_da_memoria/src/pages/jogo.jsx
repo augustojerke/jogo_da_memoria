@@ -244,7 +244,8 @@ export default function Jogo({navigation}){
                 {botGameViewVisibility && 
                     <Cronometro 
                         iniciar={iniciarCronometro} 
-                        setTempo={setValorRealCronometro} 
+                        setTempo={setValorRealCronometro}
+                        pausar={pausarCronometro} 
                     />
                 }                                                         
             </View>
