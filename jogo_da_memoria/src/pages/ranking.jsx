@@ -1,5 +1,5 @@
 import { View, StatusBar, Text, TouchableOpacity } from 'react-native';
-import api from '../api/apis.js';
+import api from '../api/api'
 
 export default function Ranking({navigation}) {
 
@@ -9,7 +9,7 @@ export default function Ranking({navigation}) {
                 console.log(response.data);
             })
             .catch(error => {
-                console.error(error);
+                console.log(error);
             })
     } 
 
@@ -17,7 +17,7 @@ export default function Ranking({navigation}) {
         <View className="flex-1 bg-green-900">
             <View className="py-16">
                 <View className="flex-row items-center justify-around">
-                    <TouchableOpacity className="bg-blue-600 w-28 rounded">
+                    <TouchableOpacity onPress={test} className="bg-blue-600 w-28 rounded">
                         <Text className="text-white font-bold text-xl text-center">
                             Fácil
                         </Text>
