@@ -24,12 +24,7 @@ export default function Home({navigation}){
                   <Text className="text-xl text-white font-bold">
                      Iniciar Jogo
                   </Text>
-               </TouchableOpacity>
-               <TouchableOpacity onPress={() => navigation.navigate("Ranking")} className="items-center justify-center bg-blue-500 mt-6 rounded-lg h-12">
-                  <Text className="text-xl text-white font-bold">
-                     Ranking
-                  </Text>
-               </TouchableOpacity>
+               </TouchableOpacity>            
             </View>            
          </View>         
          <StatusBar style="light" />
